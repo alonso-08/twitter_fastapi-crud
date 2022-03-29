@@ -3,6 +3,7 @@ from datetime import date, datetime
 from encodings import utf_8
 from turtle import title
 from typing import Optional, List
+from unittest import result
 from uuid import UUID
 import uuid
 import json
@@ -115,6 +116,7 @@ def signup(user: UserRegister = Body(...)):
 )
 def login():
     pass
+
 ### Show all Users
 @app.get(
     path="/users/"
@@ -125,7 +127,22 @@ def login():
 
 )
 def show_all_users():
-    pass
+    """
+    This path operations shows all users in the app
+    Parameters:
+    -
+
+    Returns a json list with all users in the app, with the following keys:
+
+    - user_id: UUID
+    - email: EmailStr
+    - first_name. str
+    - last_name: str
+    - birth_date: datetime
+    """
+    with open("users.json","r",encoding="utf-8") as file:
+        results=json.loads(file.read())
+        return results
 ### Show a User
 @app.get(
     path="/users/{user_id}"
@@ -137,6 +154,7 @@ def show_all_users():
 )
 def show_a_user():
     pass
+   
 
 @app.delete(
     path="/users/{user_id}/delete"
