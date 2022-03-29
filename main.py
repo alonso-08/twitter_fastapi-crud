@@ -1,9 +1,11 @@
 #Python
 from datetime import date, datetime
+from encodings import utf_8
 from turtle import title
 from typing import Optional, List
 from uuid import UUID
 import uuid
+import json
 
 #Pydantic
 from pydantic import EmailStr
@@ -11,7 +13,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 #FastApi
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
 from fastapi import status
 app=FastAPI()
 
@@ -39,7 +41,7 @@ class User(UserBase):
         min_length=1,
         max_length=50,
     )
-    birt_date: Optional[date] = Field(default=None)
+    birth_date: Optional[date] = Field(default=None)
 
 class UserRegister(User):
     password: str = Field(
@@ -74,7 +76,7 @@ class Tweet(BaseModel):
     , tags=["Users"]
 
 )
-def signup():
+def signup(user: UserRegister = Body(...)):
     """
     Signup
     
@@ -88,9 +90,20 @@ def signup():
     - email: EmailStr
     - first_name. str
     - last_name: str
-    - birth_date: str
+    - birth_date: datetime
 
     """
+    with open("users.json","r+",encoding="utf_8") as file:
+        contenido_archivo=json.loads(file.read()) 
+        user_dict=user.dict()
+        user_dict["user_id"] = str(user_dict["user_id"])
+        user_dict["birth_date"] = str(user_dict["birth_date"])
+        contenido_archivo.append(user_dict)
+        file.seek(0)
+        file.write(json.dumps(contenido_archivo))
+        print( user_dict["birth_date"])
+        return user
+
 ### Login a User
 @app.post(
     path="/login/"
