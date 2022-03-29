@@ -59,7 +59,7 @@ class Tweet(BaseModel):
         max_length=256
     )
     created_at: datetime = Field(default=datetime.now())
-    update_at: Optional[datetime] = Field(default=None)
+    updated_at: Optional[datetime] = Field(default=None)
     by: User = Field(...)
 
 
@@ -190,7 +190,7 @@ def update_a_user():
 def home():
     return {"Twitter API":"Funcionando"}
 
-### Post a User
+### Post a Tweet
 @app.post(
     path="/post/"
     , response_model=Tweet
@@ -199,8 +199,35 @@ def home():
     , tags=["Tweets"]
 
 )
-def post():
-    pass
+def post(tweet : Tweet = Body(...)):
+    """
+    Crear tweet
+    
+    This path operations register a Tweet in the app
+    
+    Parameters:
+    - Request body parametes
+        - User: Tweet
+    Returns a json with  the basic user information:
+    - tweet_id: UUID
+    - created_at: datetime 
+    - updated_at: Optional[datetime]
+    - by: User
+
+    """
+    with open("tweets.json","r+",encoding="utf_8") as file:
+        contenido_archivo=json.loads(file.read()) 
+        tweet_dict=tweet.dict()
+        tweet_dict["tweet_id"] = str(tweet_dict["tweet_id"])
+        tweet_dict["created_at"] = str(tweet_dict["created_at"])
+        tweet_dict["updated_at"] = str(tweet_dict["updated_at"])
+        tweet_dict["by"]["user_id"] = str(tweet_dict["by"]["user_id"])
+        tweet_dict["by"]["birth_date"] = str(tweet_dict["by"]["birth_date"])
+        contenido_archivo.append(tweet_dict)
+        file.seek(0)
+        file.write(json.dumps(contenido_archivo))       
+        return tweet
+
 
 ### Show a Tweet
 @app.get(
